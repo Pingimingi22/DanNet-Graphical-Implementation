@@ -9,7 +9,8 @@
 #include "Packet.h"
 // testing player
 #include "CustomIdentifiers.h"
-
+#include <iostream>
+#include <fstream>
 
 struct PlayerCreateStruct
 {
@@ -30,12 +31,19 @@ Example::Example() : Testbed()
 	testPeer = new Peer();
 	testPeer->StartPeer();
 
-	char input[25];
-	std::cin >> input;
-	strcpy_s(name, input);
+	//char input[25];
+	//std::cin >> input;
+	strcpy_s(name, "testname");
 
+
+	std::ifstream serverConfig;
+	serverConfig.open("serverconfig.cfg");
+	std::string fileIP;
+	std::getline(serverConfig, fileIP);
+	serverConfig.close();
+	
 	//Your initialisation code goes here!
-	testPeer->Connect("192.168.1.124", 25565);
+	testPeer->Connect(fileIP.c_str(), 25565);
 	//m_allPlayers.push_back(Player(testPeer->GetId(), glm::vec3(0, 1, 0), true));
 }
 

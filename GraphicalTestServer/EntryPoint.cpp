@@ -116,7 +116,7 @@ int main()
 
 				if (playerMoveS.m_xPos == 0)
 				{
-					assert(playerMoveS.m_xPos != 0);
+					//assert(playerMoveS.m_xPos != 0);
 					std::cout << "test" << std::endl;
 				}
 
