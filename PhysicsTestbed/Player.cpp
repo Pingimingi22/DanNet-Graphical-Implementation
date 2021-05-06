@@ -53,7 +53,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			if (playerMoveS.m_xPos == 0)
 			{
 				assert(true);
-				std::cout << "error" << std::endl;
+				//std::cout << "error" << std::endl;
 			}
 	
 		}
@@ -73,7 +73,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			if (playerMoveS.m_xPos == 0)
 			{
 				assert(true);
-				std::cout << "error" << std::endl;
+				//std::cout << "error" << std::endl;
 			}
 		}
 		if (glfwGetKey(window, GLFW_KEY_W)/* == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS*/)
@@ -92,7 +92,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			if (playerMoveS.m_xPos == 0)
 			{
 				assert(true);
-				std::cout << "error" << std::endl;
+				//std::cout << "error" << std::endl;
 			}
 		}
 		if (glfwGetKey(window, GLFW_KEY_S)/* == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS*/)
@@ -111,7 +111,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			if (playerMoveS.m_xPos == 0)
 			{
 				assert(true);
-				std::cout << "error" << std::endl;
+				//std::cout << "error" << std::endl;
 			}
 		}
 	}

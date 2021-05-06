@@ -5,6 +5,8 @@
 
 #include <assert.h>
 
+#include <chrono>
+
 enum CustomIdentifier
 {
 	PLAYER_CREATE = MessageIdentifier::CUSTOM_USER_ENUM,
@@ -60,6 +62,9 @@ int main()
 		incomingPacket = testPeer.UDPReceivePacket();
 		if (incomingPacket != nullptr)
 		{
+			//std::cout << "Packet identifier: " << (int)incomingPacket->GetPacketIdentifier() << std::endl;
+			//std::cout << "Hello world." << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			switch (incomingPacket->GetPacketIdentifier())
 			{
 			case (MessageIdentifier)CustomIdentifier::PLAYER_CREATE:
@@ -83,7 +88,7 @@ int main()
 
 				for (int i = 0; i < allPlayers.size(); i++)
 				{
-					if (allPlayers.size() > 1);
+					if (allPlayers.size() > 1)
 					{
 						std::cout << allPlayers.size() << std::endl;
 						std::cout << "hey" << std::endl;
