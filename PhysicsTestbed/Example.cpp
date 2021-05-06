@@ -12,8 +12,11 @@
 #include <iostream>
 #include <fstream>
 
+#include "PacketPriorities.h"
+
 struct PlayerCreateStruct
 {
+	int realFirstByte = (int)PacketPriority::RELIABLE_UDP;
 	int firstByte = (int)CustomIdentifier::PLAYER_CREATE;
 
 	float m_xPos = 0;
@@ -62,7 +65,7 @@ void Example::Update()
 		playerCreateS.m_id = testPeer->GetId();
 		strcpy_s(playerCreateS.name, name);
 
-		playerCreationPacket.Serialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
+		playerCreationPacket.Serialize(playerCreateS.realFirstByte, playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
 		testPeer->UDPSend(playerCreationPacket);
 
 		std::cout << "our player created: " << playerCreateS.m_id << " name: " << name << std::endl;
@@ -79,7 +82,7 @@ void Example::Update()
 		case (MessageIdentifier)CustomIdentifier::PLAYER_CREATE:
 		{
 			PlayerCreateStruct playerCreateS;
-			incomingPacket->Deserialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
+			incomingPacket->Deserialize(playerCreateS.realFirstByte, playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
 			if (playerCreateS.m_id == testPeer->GetId()) // if this an echo of our creation, ignore it.
 			{
 				testPeer->FlushCurrentPacket();

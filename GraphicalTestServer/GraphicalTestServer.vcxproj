@@ -116,13 +116,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\danie\Documents\Visual_Studio_Projects\winsock-udp-testproj\cereal\include;C:\Users\danie\Documents\Visual_Studio_Projects\winsock-udp-testproj\Winsock_UDP_TestProj</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\danie\source\repos\winsock-udp-testproj\cereal\include;C:\Users\danie\source\repos\winsock-udp-testproj\Winsock_UDP_TestProj</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Winsock_UDP_TestProj.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\danie\Documents\Visual_Studio_Projects\winsock-udp-testproj\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\danie\source\repos\winsock-udp-testproj\x64\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,7 +133,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\danie\Documents\Visual_Studio_Projects\winsock-udp-testproj\cereal\include;C:\Users\danie\Documents\Visual_Studio_Projects\winsock-udp-testproj\Winsock_UDP_TestProj</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\danie\source\repos\winsock-udp-testproj\cereal\include;C:\Users\danie\source\repos\winsock-udp-testproj\Winsock_UDP_TestProj</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,7 +141,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Winsock_UDP_TestProj.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\danie\Documents\Visual_Studio_Projects\winsock-udp-testproj\x64\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\danie\source\repos\winsock-udp-testproj\x64\Release</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

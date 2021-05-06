@@ -7,6 +7,8 @@
 
 #include <chrono>
 
+#include "PacketPriorities.h"
+
 enum CustomIdentifier
 {
 	PLAYER_CREATE = MessageIdentifier::CUSTOM_USER_ENUM,
@@ -15,6 +17,7 @@ enum CustomIdentifier
 
 struct PlayerCreateStruct
 {
+	int realFirstByte = (int)PacketPriority::RELIABLE_UDP;
 	int firstByte = (int)CustomIdentifier::PLAYER_CREATE;
 
 	float m_xPos = 0;
@@ -70,13 +73,13 @@ int main()
 			case (MessageIdentifier)CustomIdentifier::PLAYER_CREATE:
 			{
 				PlayerCreateStruct playerCreateS;
-				incomingPacket->Deserialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
+				incomingPacket->Deserialize(playerCreateS.realFirstByte, playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
 
 				Packet playerCreatePacket;
-				playerCreatePacket.Serialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
+				playerCreatePacket.Serialize(playerCreateS.realFirstByte, playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
 
 				PlayerCreateStruct testdelete;
-				playerCreatePacket.Deserialize(testdelete.firstByte, testdelete.m_xPos, testdelete.m_yPos, testdelete.m_id, testdelete.name);
+				playerCreatePacket.Deserialize(playerCreateS.realFirstByte, testdelete.firstByte, testdelete.m_xPos, testdelete.m_yPos, testdelete.m_id, testdelete.name);
 
 				testPeer.UDPSendToAll(playerCreatePacket);
 
@@ -113,6 +116,7 @@ int main()
 
 				testPeer.FlushCurrentPacket();
 				break;
+		
 			}
 			case (MessageIdentifier)CustomIdentifier::PLAYER_MOVE:
 			{
