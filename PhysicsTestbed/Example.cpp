@@ -25,7 +25,6 @@ struct PlayerCreateStruct
 	int m_id = -1;
 
 	char name[25];
-	
 };
 
 
@@ -38,6 +37,7 @@ Example::Example() : Testbed()
 	//std::cin >> input;
 	strcpy_s(name, "testname");
 
+//	sendreliable()
 
 	std::ifstream serverConfig;
 	serverConfig.open("serverconfig.cfg");
