@@ -1,11 +1,9 @@
-#include "Player.h"
-
 #include "Testbed.h"
 
+#include "Player.h"
 #include "Packet.h"
 #include "Peer.h"
 
-#include "teststructheaderdelete.h"
 
 Player::Player(int id, char* name, glm::vec3 colour, bool isPlayer)
 {
@@ -46,7 +44,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			
 			
 
-			Packet packet;
+			Packet packet(PacketPriority::UNRELIABLE_UDP);
 			packet.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 			peer.UDPSend(packet);
 
@@ -66,7 +64,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			playerMoveS.m_xPos = m_xPos;
 			playerMoveS.m_yPos = m_yPos;
 
-			Packet packet;
+			Packet packet(PacketPriority::UNRELIABLE_UDP);
 			packet.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 			peer.UDPSend(packet);
 
@@ -85,7 +83,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			playerMoveS.m_xPos = m_xPos;
 			playerMoveS.m_yPos = m_yPos;
 
-			Packet packet;
+			Packet packet(PacketPriority::UNRELIABLE_UDP);
 			packet.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 			peer.UDPSend(packet);
 
@@ -104,7 +102,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			playerMoveS.m_xPos = m_xPos;
 			playerMoveS.m_yPos = m_yPos;
 
-			Packet packet;
+			Packet packet(PacketPriority::UNRELIABLE_UDP);
 			packet.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 			peer.UDPSend(packet);
 

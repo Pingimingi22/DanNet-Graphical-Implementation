@@ -17,7 +17,6 @@ enum CustomIdentifier
 
 struct PlayerCreateStruct
 {
-	int realFirstByte = (int)PacketPriority::RELIABLE_UDP;
 	int firstByte = (int)CustomIdentifier::PLAYER_CREATE;
 
 	float m_xPos = 0;
@@ -73,13 +72,13 @@ int main()
 			case (MessageIdentifier)CustomIdentifier::PLAYER_CREATE:
 			{
 				PlayerCreateStruct playerCreateS;
-				incomingPacket->Deserialize(playerCreateS.realFirstByte, playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
+				incomingPacket->Deserialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
 
-				Packet playerCreatePacket;
-				playerCreatePacket.Serialize(playerCreateS.realFirstByte, playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
+				Packet playerCreatePacket(PacketPriority::RELIABLE_UDP);
+				playerCreatePacket.Serialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
 
 				PlayerCreateStruct testdelete;
-				playerCreatePacket.Deserialize(playerCreateS.realFirstByte, testdelete.firstByte, testdelete.m_xPos, testdelete.m_yPos, testdelete.m_id, testdelete.name);
+				playerCreatePacket.Deserialize(testdelete.firstByte, testdelete.m_xPos, testdelete.m_yPos, testdelete.m_id, testdelete.name);
 
 				testPeer.UDPSendToAll(playerCreatePacket);
 
@@ -101,7 +100,7 @@ int main()
 					anotherPlayerCreateS.m_id = allPlayers[i].m_id;
 			
 					strcpy_s(anotherPlayerCreateS.name, allPlayers[i].name);
-					Packet testPacket;
+					Packet testPacket(PacketPriority::RELIABLE_UDP);
 					testPacket.Serialize(anotherPlayerCreateS.firstByte, anotherPlayerCreateS.m_xPos, anotherPlayerCreateS.m_yPos, anotherPlayerCreateS.m_id, anotherPlayerCreateS.name);
 					testPeer.UDPSendTo(testPacket, client.m_ipAddress, client.m_port);
 					std::cout << "told client of another person." << std::endl;
@@ -135,7 +134,7 @@ int main()
 					{
 						allPlayers[i].m_xPos = playerMoveS.m_xPos;
 						allPlayers[i].m_yPos = playerMoveS.m_yPos;
-						Packet playerMovePacket;
+						Packet playerMovePacket(PacketPriority::UNRELIABLE_UDP);
 						playerMovePacket.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 						testPeer.UDPSendToAll(playerMovePacket);
 						
