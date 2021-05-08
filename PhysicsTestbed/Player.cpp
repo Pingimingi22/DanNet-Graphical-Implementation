@@ -44,7 +44,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			
 			
 
-			Packet packet(PacketPriority::UNRELIABLE_UDP);
+			Packet packet((int)PacketPriority::UNRELIABLE_UDP);
 			packet.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 			peer.UDPSend(packet);
 
@@ -64,7 +64,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			playerMoveS.m_xPos = m_xPos;
 			playerMoveS.m_yPos = m_yPos;
 
-			Packet packet(PacketPriority::UNRELIABLE_UDP);
+			Packet packet((int)PacketPriority::UNRELIABLE_UDP);
 			packet.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 			peer.UDPSend(packet);
 
@@ -83,7 +83,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			playerMoveS.m_xPos = m_xPos;
 			playerMoveS.m_yPos = m_yPos;
 
-			Packet packet(PacketPriority::UNRELIABLE_UDP);
+			Packet packet((int)PacketPriority::UNRELIABLE_UDP);
 			packet.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 			peer.UDPSend(packet);
 
@@ -102,7 +102,8 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			playerMoveS.m_xPos = m_xPos;
 			playerMoveS.m_yPos = m_yPos;
 
-			Packet packet(PacketPriority::UNRELIABLE_UDP);
+			
+			Packet packet((int)PacketPriority::UNRELIABLE_UDP);
 			packet.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 			peer.UDPSend(packet);
 
