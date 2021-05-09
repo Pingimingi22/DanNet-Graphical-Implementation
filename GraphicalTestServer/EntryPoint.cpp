@@ -113,12 +113,7 @@ int main()
 
 				for (int i = 0; i < allPlayers.size(); i++)
 				{
-					if (allPlayers.size() > 1)
-					{
-						std::cout << allPlayers.size() << std::endl;
-						std::cout << "hey" << std::endl;
-					}
-
+					
 					PlayerCreateStruct anotherPlayerCreateS;
 					anotherPlayerCreateS.m_id = allPlayers[i].m_id;
 			
@@ -126,8 +121,9 @@ int main()
 					Packet testPacket((int)PacketPriority::RELIABLE_UDP);
 					testPacket.Serialize(anotherPlayerCreateS.firstByte, anotherPlayerCreateS.m_xPos, anotherPlayerCreateS.m_yPos, anotherPlayerCreateS.m_id, anotherPlayerCreateS.name);
 					testPeer.UDPSendTo(testPacket, client.m_ipAddress, client.m_port);
-					std::cout << "told client of another person." << std::endl;
-
+					std::cout << std::endl;
+					std::cout << "===== [NEW CLIENT] ===== Sent the new client information about player " << allPlayers[i].m_id << ". " << std::endl;
+					std::cout << std::endl;
 				}
 
 				// adding player to server player list.
