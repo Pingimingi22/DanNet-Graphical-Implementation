@@ -58,6 +58,28 @@ int main()
 
 	bool isRunning = true;
 
+
+
+
+	// testing serialization.
+	Packet testPacket = Packet((int)PacketPriority::RELIABLE_UDP);
+	int testNum = 95;
+	testPacket.Serialize(testNum);
+
+	int thingWeDontCareAbout = 0;
+	GUID guidWeDontCareAbout;
+	int deserializeTestNum = 0;
+
+	testPacket.InternalHeaderDeserialize(thingWeDontCareAbout, guidWeDontCareAbout);
+	testPacket.Deserialize(deserializeTestNum);
+	//-----------------------------------
+
+
+
+
+
+
+
 	Packet* incomingPacket = nullptr;
 	while (isRunning)
 	{
@@ -66,7 +88,8 @@ int main()
 		{
 			//std::cout << "Packet identifier: " << (int)incomingPacket->GetPacketIdentifier() << std::endl;
 			//std::cout << "Hello world." << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			MessageIdentifier testIdentifier = incomingPacket->GetPacketIdentifier();
 			switch (incomingPacket->GetPacketIdentifier())
 			{
 			case (MessageIdentifier)CustomIdentifier::PLAYER_CREATE:
@@ -77,8 +100,8 @@ int main()
 				Packet playerCreatePacket((int)PacketPriority::RELIABLE_UDP);
 				playerCreatePacket.Serialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
 
-				PlayerCreateStruct testdelete;
-				playerCreatePacket.Deserialize(testdelete.firstByte, testdelete.m_xPos, testdelete.m_yPos, testdelete.m_id, testdelete.name);
+				//PlayerCreateStruct testdelete;
+				//playerCreatePacket.Deserialize(testdelete.firstByte, testdelete.m_xPos, testdelete.m_yPos, testdelete.m_id, testdelete.name);
 
 				testPeer.UDPSendToAll(playerCreatePacket);
 

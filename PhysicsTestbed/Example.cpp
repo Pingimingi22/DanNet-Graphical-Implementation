@@ -59,7 +59,7 @@ void Example::Update()
 	{
 		m_myPlayer = new Player(testPeer->GetId(), name, glm::vec3(0, 1, 0), true); // =================================== WARNING ================================= this player is on the heap and we are not deleting it!
 
-		Packet playerCreationPacket((int)PacketPriority::RELIABLE_UDP);
+		Packet playerCreationPacket((int)PacketPriority::UNRELIABLE_UDP);
 		PlayerCreateStruct playerCreateS;
 		playerCreateS.m_id = testPeer->GetId();
 		strcpy_s(playerCreateS.name, name);
