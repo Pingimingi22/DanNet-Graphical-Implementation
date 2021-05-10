@@ -103,6 +103,8 @@ int main()
 				//PlayerCreateStruct testdelete;
 				//playerCreatePacket.Deserialize(testdelete.firstByte, testdelete.m_xPos, testdelete.m_yPos, testdelete.m_id, testdelete.name);
 
+				std::cout << std::endl;
+				std::cout << "UDPSendToAll() Called. Sending information about new player to all old players." << std::endl;
 				testPeer.UDPSendToAll(playerCreatePacket);
 
 
@@ -111,6 +113,7 @@ int main()
 				ClientStruct client;
 				client = testPeer.GetClient(playerCreateS.m_id);
 
+				std::cout << "Sending information about all older players to the new player." << std::endl;
 				for (int i = 0; i < allPlayers.size(); i++)
 				{
 					
@@ -120,6 +123,7 @@ int main()
 					strcpy_s(anotherPlayerCreateS.name, allPlayers[i].name);
 					Packet testPacket((int)PacketPriority::RELIABLE_UDP);
 					testPacket.Serialize(anotherPlayerCreateS.firstByte, anotherPlayerCreateS.m_xPos, anotherPlayerCreateS.m_yPos, anotherPlayerCreateS.m_id, anotherPlayerCreateS.name);
+					std::cout << "UDPSendTo() called." << std::endl;
 					testPeer.UDPSendTo(testPacket, client.m_ipAddress, client.m_port);
 					std::cout << std::endl;
 					std::cout << "===== [NEW CLIENT] ===== Sent the new client information about player " << allPlayers[i].m_id << ". " << std::endl;
