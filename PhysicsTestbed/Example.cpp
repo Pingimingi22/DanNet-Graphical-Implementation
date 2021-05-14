@@ -32,6 +32,8 @@ Example::Example() : Testbed()
 	testPeer = new Peer();
 	testPeer->StartPeer();
 
+	testPeer->SimulateLag(true, 5000);
+
 	//char input[25];
 	//std::cin >> input;
 	strcpy_s(name, "testname");

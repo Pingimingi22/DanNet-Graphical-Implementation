@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include <string>
 #include "UDPListener.h"
 #include <sstream>
@@ -11,6 +9,8 @@
 #include "ClientStruct.h"
 
 #include <mutex>
+
+#define RELIABLE_UDP_RETRANSMISSION_RATE 2000 
 
 class UDPListener;
 class Packet;
@@ -40,16 +40,22 @@ public:
 
 	void const UDPSendToAll(Packet& packet);
 	void UDPSendReliableToAll();
-
+	
+	// Clears the packet first in the packet queue.
 	void FlushCurrentPacket();
 
 	int GetId() { return m_ID; }
+	// Returns a ClientStruct containing the ip address and port of the client.
 	ClientStruct GetClient(int id);
+
+
+	void SimulateLag(bool isSimulate, float lagInMilliseconds = 0);
+	void UpdateLagSends();
+
 
 private:
 	void Update();
 	//Peer CreatePeer(bool server = false, unsigned short portNumber = NULL); // i guess this is gonna be a factory method.
-
 
 	// Only to be used if the peer is the server.
 	void const AddClient(sockaddr_in& clientAddress);
@@ -79,6 +85,15 @@ private:
 
 	// ------------------ ONLY TO BE USED IF PEER IS A CLIENT. ------------------ //
 	int m_ID = -1; // -1 is like an error checking thing.
+
+
+
+	// ----------------- Lag simulation stuff. ----------------- //
+	std::unique_ptr<std::mutex> m_lagPacketMutex;
+	std::vector<Packet> m_lagPacketQueue;
+	float m_lagInMilliseconds = 0;
+	bool m_isLagSimulation = false;
+
 
 
 	// -------------------- Threading stuff -------------------- //

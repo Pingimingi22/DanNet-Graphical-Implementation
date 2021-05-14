@@ -23,6 +23,8 @@ Peer::Peer(bool server, unsigned short portNumber)
 
 	m_reliablePacketMutex = std::make_unique<std::mutex>();
 
+	m_lagPacketMutex = std::make_unique<std::mutex>();
+
 
 	// testing reserving spaces for our std::vector's since I'm having memory issues.
 	m_reliablePackets.reserve(10);
@@ -171,11 +173,25 @@ void const Peer::UDPSend(Packet& packet)
 	{
 		std::lock_guard<std::mutex> guard(*m_reliablePacketMutex);
 		m_reliablePackets.push_back(packet);
-		std::cout << " Added reliable packet to reliable packet queue." << std::endl;
+		std::cout << "Added reliable packet to reliable packet queue." << std::endl;
 	}
 
-	
-	m_udpListener.Send(packet);
+	// We only want to add packets to the lag queue if they are:
+	// - Not reliable.
+	// - The peer is set to simulate lag.
+	else if (m_isLagSimulation)
+	{
+		std::lock_guard<std::mutex> lagPacketGaurd(*m_lagPacketMutex.get());
+		m_lagPacketQueue.push_back(packet);
+		std::cout << "Added a packet to the lag packet queue." << std::endl;
+	}
+
+
+	// If the peer is attempting to simulate lag, we don't want to immediately send, we want to make sure it's as slow as possible.
+	if (!m_isLagSimulation)
+	{
+		m_udpListener.Send(packet);
+	}
 }
 
 void Peer::UDPSendReliable(Packet& packet)
@@ -200,7 +216,8 @@ void Peer::UpdateReliableSends()
 			m_reliablePackets[i].CheckPacketTimer();
 			m_reliablePackets[i].GetTimeDuration();
 
-			if (m_reliablePackets[i].m_elapsedMilliseconds >= 2000) // sends every .5 seconds.
+
+			if (m_reliablePackets[i].m_elapsedMilliseconds >= RELIABLE_UDP_RETRANSMISSION_RATE) 
 			{
 				MessageIdentifier type = m_reliablePackets[i].GetPacketIdentifier();
 				
@@ -231,16 +248,27 @@ void const Peer::UDPSendTo(Packet& packet, char* ipAddress, unsigned short port)
 	{
 		if (m_isServer) // If we are the server let's cache the destination ip address and port into this packet so we can continously send it in the reliable udp update function.
 		{
-			strcpy_s(packet.m_destinationIP, ipAddress);
-			packet.m_destinationPort = port;
+			//strcpy_s(packet.m_destinationIP, ipAddress);
+			//packet.m_destinationPort = port;
+			packet.SetDestination(ipAddress, port);
 		}
 
 		std::lock_guard<std::mutex> guard(*m_reliablePacketMutex);
 		m_reliablePackets.push_back(packet);
-		std::cout << " Added reliable packet to reliable packet queue." << std::endl;
+		std::cout << "Added reliable packet to reliable packet queue." << std::endl;
 	}
 
-	m_udpListener.SendTo(packet, ipAddress, port);
+	// If the packet is unreliable and we want to simulate lag, we'll put it in the lag packet queue.
+	else if (m_isLagSimulation)
+	{
+		std::lock_guard<std::mutex> lagPacketGuard(*m_lagPacketMutex.get());
+		m_lagPacketQueue.push_back(packet);
+		std::cout << "Added a packet to the lag packet queue." << std::endl;
+	}
+	if(!m_isLagSimulation) // If we aren't simulating lag, send out a packet instantly without waiting for reliable UDP re-transmission.
+	{
+		m_udpListener.SendTo(packet, ipAddress, port);
+	}
 }
 
 void const Peer::UDPSendToAll(Packet& packet)
@@ -264,9 +292,10 @@ void const Peer::UDPSendToAll(Packet& packet)
 			// to get the binary data from the original packet into this one, i'm gonna try memcpy.
 			memcpy(&uniquePacket.m_allBytes[0], &packet.m_allBytes[0], 256);
 
-			memcpy(&uniquePacket.m_destinationIP[0], &packet.m_destinationIP[0], 15);
+			//memcpy(&uniquePacket.m_destinationIP[0], &packet.m_destinationIP[0], 15);
+			//uniquePacket.m_destinationPort = packet.m_destinationPort;
 
-			uniquePacket.m_destinationPort = packet.m_destinationPort;
+			uniquePacket.SetDestination(packet.m_destinationIP, packet.m_destinationPort);
 
 			uniquePacket.m_guid.Data1 = packet.m_guid.Data1;
 			uniquePacket.m_guid.Data2 = packet.m_guid.Data2;
@@ -285,8 +314,34 @@ void const Peer::UDPSendToAll(Packet& packet)
 	// just send the normal packet if they don't care about reliability.
 	else
 	{
+	
 		for (int i = 0; i < m_connectedClients.size(); i++)
 		{
+
+			// ----------- Making a unique packet with it's own unique GUID ----------- //
+			// Techanically we don't need to send unique packet's since GUID's wont even be checked if it's not a reliable packet.
+			// ------------------------------------------------------------------------ //
+
+			Packet uniquePacket(priority);
+			// to get the binary data from the original packet into this one, i'm gonna try memcpy.
+			memcpy(&uniquePacket.m_allBytes[0], &packet.m_allBytes[0], 256);
+
+			//memcpy(&uniquePacket.m_destinationIP[0], &packet.m_destinationIP[0], 15);
+			//uniquePacket.m_destinationPort = packet.m_destinationPort;
+
+			uniquePacket.SetDestination(packet.m_destinationIP, packet.m_destinationPort);
+
+			uniquePacket.m_guid.Data1 = packet.m_guid.Data1;
+			uniquePacket.m_guid.Data2 = packet.m_guid.Data2;
+			uniquePacket.m_guid.Data3 = packet.m_guid.Data3;
+
+			for (int x = 0; x < 8; x++)
+			{
+				uniquePacket.m_guid.Data4[x] = packet.m_guid.Data4[x];
+			}
+
+			// ------------------------------------------------------------------------ //
+
 			UDPSendTo(packet, m_connectedClients[i].m_ipAddress, m_connectedClients[i].m_port);
 		}
 	}
@@ -323,6 +378,81 @@ ClientStruct Peer::GetClient(int id)
 	}
 	// otherwise they tried to find a client that doesn't exist.
 	assert(true);
+}
+
+void Peer::SimulateLag(bool isSimulate, float lagInMilliseconds)
+{
+	// There are two core things to consider when attempting to simulate lag. We need to put all packets into some sort of queue and time their "release". But there are two types of packets, reliable and
+	// unreliable udp packets. Reliable packets don't get stored anywhere and we can just throw them into a lag queue and send them out slowly, but UDP packets get sent out initially like unreliable packets,
+	// but are then put into their own reliable UDP queue. The reliable udp queue has it's owner timer stuff going on to time the release of the re-transmission of packets.
+
+	// Because reliable UDP packet's are already in a queue of their own which gets released on a timer, to simulate lag we will only put unreliable packets into the lag queue and let reliable packet's go into
+	// their reliable udp queue. To make reliable packets "lag", I'm going to set the re-transmission rate of reliable udp packets to match the simulated lag time passed in.
+
+
+	if (!isSimulate)
+	{
+		m_isLagSimulation = true;
+		m_lagInMilliseconds = lagInMilliseconds;
+	}
+	else
+	{
+		m_isLagSimulation = false;
+		m_lagInMilliseconds = 0;
+	}
+}
+
+void Peer::UpdateLagSends()
+{
+
+	// =========================== NOTE =========================== //
+	// Because simulated lag packet's will never be reliable,
+	// we can clear them from the m_lagPacketQueue as soon as we
+	// send them out.
+	// ============================================================ //
+
+
+	if (m_lagPacketQueue.size() > 0)										
+	{
+		for (int i = 0; i < m_lagPacketQueue.size(); i++)
+		{
+			if (!m_lagPacketQueue[i].m_isTimerStarted)
+				m_lagPacketQueue[i].StartPacketTimer();
+
+			m_lagPacketQueue[i].CheckPacketTimer();
+			m_lagPacketQueue[i].GetTimeDuration();
+
+
+			if (m_lagPacketQueue[i].m_elapsedMilliseconds >= m_lagInMilliseconds)
+			{
+				MessageIdentifier type = m_lagPacketQueue[i].GetPacketIdentifier();
+
+				if (!m_isServer) // if we're not the server we're probably connected so we can use Send()
+				{
+					m_udpListener.Send(m_lagPacketQueue[i]);																		 // ================================== IMPORTANT NOTE ================================== // 
+					std::cout << "Sent out a laggy udp packet with Send() of type [" << (int)type << "]." << std::endl;				 // The reason why I'm using m_udpListener.Send() instead of UDPSend() is because UDPSend()
+					m_lagPacketQueue[i].StopPacketTimer();																		     // will add the packet to the packet queue, and since we are "re-sending" packets, we would
+																																	 // keep duplicating packet's if we used UDPSend().																			
+
+					// Removing packet from the queue since we've sent it out an no longer need to track it.
+					std::lock_guard<std::mutex> lagPacketGuard(*m_lagPacketMutex.get());
+					m_lagPacketQueue.erase(m_lagPacketQueue.begin() + i); // Removing the packet that just sent.
+				}																													 
+
+				else // otherwise this is the server and we have to use the SendTo() function.
+				{
+					m_udpListener.SendTo(m_lagPacketQueue[i], m_lagPacketQueue[i].m_destinationIP, m_lagPacketQueue[i].m_destinationPort);
+					std::cout << "Sent out a laggy udp packet with SendTo() of type [" << (int)type << "]." << std::endl;
+					m_lagPacketQueue[i].StopPacketTimer();
+
+					// Removing packet from the queue since we've sent it out an no longer need to track it.
+					std::lock_guard<std::mutex> lagPacketGuard(*m_lagPacketMutex.get());
+					m_lagPacketQueue.erase(m_lagPacketQueue.begin() + i); // Removing the packet that just sent.
+				}
+
+			}
+		}
+	}
 }
 
 void Peer::Update()

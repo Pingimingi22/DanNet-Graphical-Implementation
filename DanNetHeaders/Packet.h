@@ -31,7 +31,7 @@ public:
 private:
 	Packet() {} // We need a default constructor for Packet's because the UDPListener needs to be able to create a "generic" packet that it will fill in when it receives data.
 	Packet(int priority, GUID guid); // Special constructor only to be used internally. NOT by the user. When the udp listener needs to send an ACK back, 
-		                                        //they will construct the packet with this constructor so they can hand pick the GUID.
+		                             //they will construct the packet with this constructor so they can hand pick the GUID.
 public:
 	Packet(const Packet& otherPacket)
 	{
@@ -81,12 +81,20 @@ public:
 public:
 	void Create();
 	void Send();
-	void SendReliable();
+	//void SendReliable(); DEPRECATED
 
 	// --------------------------------------------------- RELIABLE UDP TIMER STUFF --------------------------------------------------- //
+	// ---------------------------------------------------      IMPORTANT NOTE      --------------------------------------------------- //
+	//		I'll try use this timer stuff for lag send outs aswell. So these timers will be used for unreliable packets if the			//
+	//		user wants to simulate lag.							
+	//
+	//		Because we are using the same variables for both sending out reliable and laggy packets, reliable packets CANNOT be
+	//      in both the UpdateReliablePackets() function and UpdateLagSends() function since the variables will write over each other.
+	//	    Right now the idea is that reliable packets will NOT be placed in the m_lagPacketQueue so there shouldn't be any issues.
+	// -------------------------------------------------------------------------------------------------------------------------------- //
 
-	// - Every packet will have the ability to set and use these timers but I will only use them for the packets in the reliable packet queue.
-	// - The reason I'm using chrono stedy_clock instead of system_clock is because system_clock can be changed by the user at any time.
+	// - Every packet will have the ability to set and use these timers but I will only use them for the packets in the reliable packet queue (not anymore, also laggy packets will use it).
+	// - The reason I'm using chrono steady_clock instead of system_clock is because system_clock can be changed by the user at any time. (using system_clock for now, have to run some tests on steady_clock.)
 
 	// To be used when sending reliable udp packets. Starting a packet's timer will set it's start time. We can then choose to send out packets which have counted "x" amount of seconds.
 	void StartPacketTimer();
@@ -111,13 +119,25 @@ public:
 	char m_destinationIP[15];
 	unsigned short m_destinationPort;
 
-	void Clear();
+	
+	bool m_hasSpecifiedDestination;
+
+	// Set's the m_destinationIP and m_destinationPort so that I don't have to do it manually. This function will also set m_hasSpecifiedDestination to true which will mean DanNet will send with SendTo() rather than Send() in some places.
+	void SetDestination(const char* ipAddress, unsigned short portNumber);
+	// ----------------------------------------------------------------------- //
+
+
+
+	void Clear(); // I don't know why I made this function, it was supposed to be called to delete packet's but I feel like calling delete explicitily is easier for others to read.
 	
 
+	// GetPacketPriority() gets the first four bytes (the true first four bytes, this should only ever be used internally and never by the user.)
 	PacketPriority GetPacketPriority();
-	
+
+	// GetPacketIndentifier() gets the first four bytes for the user. It will return the type of packet in enum form.
 	MessageIdentifier GetPacketIdentifier(); // Only to be used after one byte has been read from the packet.
 
+	// To help with things, packets cache their priority and guid to make it easier for other functions to utilise without having to deserialise m_bytes.
 	PacketPriority m_priority;
 	GUID m_guid;
 
@@ -226,8 +246,7 @@ private:
 		memset(&testGuid, 0, sizeof(GUID));
 
 
-		
-
+	
 		// Serializing the packet priority.
 		outputArchive(Priority);
 		//testOutput->operator()(Priority);
@@ -328,7 +347,7 @@ public:
 	// These probably shouldn't be public but it's easier this way to read things into these byte arrays all the way in the UDPListener.
 
 	char m_allBytes[maxPacketSize]; // idk 256 bytes (not 1KB) seemed like a cool number to pick for the maximum amount in a "dan" packet.
-				      // I think this is super low for today's standards but eh maybe it'll be cool having an old school networking library.
+							        // I think this is super low for today's standards but eh maybe it'll be cool having an old school networking library.
 
 	// To organise m
 	//char m_internalHeaderBytes[25];

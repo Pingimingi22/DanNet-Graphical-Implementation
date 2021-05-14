@@ -32,9 +32,10 @@ void Packet::Send()
 {
 }
 
-void Packet::SendReliable()
-{
-}
+// This has been deprecated. To send reliable udp packets, you use regular send commabds but pass in a packet that has a reliable priority set.
+//void Packet::SendReliable()
+//{
+//}
 
 void Packet::StartPacketTimer()
 {
@@ -57,6 +58,13 @@ void Packet::StopPacketTimer()
 {
 	m_isTimerStarted = false; // resetting the boolean so we can start the timer again in the update function.
 	m_elapsedMilliseconds = 0; // resetting elapsed milliseconds to avoid errors.
+}
+
+void Packet::SetDestination(const char* ipAddress, unsigned short portNumber)
+{
+	strcpy_s(m_destinationIP, ipAddress);
+	m_destinationPort = portNumber;
+	m_hasSpecifiedDestination = true;
 }
 
 void Packet::Clear()
