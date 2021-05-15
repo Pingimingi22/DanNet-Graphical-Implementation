@@ -32,7 +32,7 @@ Example::Example() : Testbed()
 	testPeer = new Peer();
 	testPeer->StartPeer();
 
-	testPeer->SimulateLag(true, 5000);
+	testPeer->SimulateLag(true, 500);
 
 	//char input[25];
 	//std::cin >> input;
