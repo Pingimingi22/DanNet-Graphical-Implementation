@@ -32,7 +32,7 @@ Example::Example() : Testbed()
 	testPeer = new Peer();
 	testPeer->StartPeer();
 
-	testPeer->SimulateLag(true, 500);
+	//testPeer->SimulateLag(true, 500);
 
 	//char input[25];
 	//std::cin >> input;
@@ -61,7 +61,7 @@ void Example::Update()
 	{
 		m_myPlayer = new Player(testPeer->GetId(), name, glm::vec3(0, 1, 0), true); // =================================== WARNING ================================= this player is on the heap and we are not deleting it!
 
-		Packet playerCreationPacket((int)PacketPriority::UNRELIABLE_UDP);
+		Packet playerCreationPacket(PacketPriority::UNRELIABLE_UDP);
 		PlayerCreateStruct playerCreateS;
 		playerCreateS.m_id = testPeer->GetId();
 		strcpy_s(playerCreateS.name, name);

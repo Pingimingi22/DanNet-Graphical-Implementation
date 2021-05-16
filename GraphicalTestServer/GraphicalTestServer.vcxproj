@@ -116,7 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\cereal\include;$(SolutionDir)\DanNetHeaders</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\cereal\include;C:\Users\danie\source\repos\winsock-udp-testproj\Winsock_UDP_TestProj</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

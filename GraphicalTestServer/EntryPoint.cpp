@@ -58,11 +58,11 @@ int main()
 
 	bool isRunning = true;
 
-
+	//testPeer.SimulateLag(true, 1000);
 
 
 	// testing serialization.
-	Packet testPacket = Packet((int)PacketPriority::RELIABLE_UDP);
+	Packet testPacket = Packet(PacketPriority::RELIABLE_UDP);
 	int testNum = 95;
 	testPacket.Serialize(testNum);
 
@@ -96,8 +96,8 @@ int main()
 			{
 				PlayerCreateStruct playerCreateS;
 				incomingPacket->Deserialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
-
-				Packet playerCreatePacket((int)PacketPriority::RELIABLE_UDP);
+				
+				Packet playerCreatePacket(PacketPriority::RELIABLE_UDP);
 				playerCreatePacket.Serialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
 
 				//PlayerCreateStruct testdelete;
@@ -121,7 +121,7 @@ int main()
 					anotherPlayerCreateS.m_id = allPlayers[i].m_id;
 			
 					strcpy_s(anotherPlayerCreateS.name, allPlayers[i].name);
-					Packet testPacket((int)PacketPriority::RELIABLE_UDP);
+					Packet testPacket(PacketPriority::RELIABLE_UDP);
 					testPacket.Serialize(anotherPlayerCreateS.firstByte, anotherPlayerCreateS.m_xPos, anotherPlayerCreateS.m_yPos, anotherPlayerCreateS.m_id, anotherPlayerCreateS.name);
 					std::cout << "UDPSendTo() called." << std::endl;
 					testPeer.UDPSendTo(testPacket, client.m_ipAddress, client.m_port);
@@ -157,7 +157,7 @@ int main()
 					{
 						allPlayers[i].m_xPos = playerMoveS.m_xPos;
 						allPlayers[i].m_yPos = playerMoveS.m_yPos;
-						Packet playerMovePacket((int)PacketPriority::UNRELIABLE_UDP);
+						Packet playerMovePacket(PacketPriority::UNRELIABLE_UDP);
 						playerMovePacket.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 						testPeer.UDPSendToAll(playerMovePacket);
 						
