@@ -152,7 +152,8 @@ void Example::Update()
 			if (!hasFoundPlayer) // If we didn't find the player, that means we received a timeout message to remove a client we don't have. This is pretty bad but it could mean we already have removed
 			{					 // the client.
 				std::cout << "Received a timeout message for a client but we don't have that client listed as a player!" << std::endl;
-				assert(false);
+				//assert(false); This isn't neccessary as apparently it's pretty common to receive timeout messages for client's we don't have especially if someone highlights text on the console and
+				// freezes everything...
 			}
 			testPeer->FlushCurrentPacket();
 			break;
