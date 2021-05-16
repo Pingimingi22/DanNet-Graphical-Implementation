@@ -5,6 +5,7 @@
 #include "Peer.h"
 
 
+
 Player::Player(int id, char* name, glm::vec3 colour, bool isPlayer)
 {
 	m_id = id;
@@ -17,13 +18,11 @@ Player::Player(int id, char* name, glm::vec3 colour, bool isPlayer)
 void Player::Update(GLFWwindow* window, float deltaTime, Peer& peer)
 {
 	Move(window, deltaTime, peer);
-
-	//std::cout << "X:" << m_xPos << " Y:" << m_yPos << std::endl;
 }
 
 void Player::Draw(LineRenderer& renderer)
 {
-	renderer.DrawCircle(glm::vec2(m_xPos, m_yPos), m_radius);
+	renderer.DrawCircle(glm::vec2(m_xPos, m_yPos), m_radius, m_colour);
 }
 
 void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)

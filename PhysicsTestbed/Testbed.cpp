@@ -130,6 +130,11 @@ bool Testbed::IsRunning() const
 	return !glfwWindowShouldClose(window);
 }
 
+void Testbed::Shutdown() const
+{
+	glfwSetWindowShouldClose(window, true);
+}
+
 void Testbed::OnMouseClick(int mouseButton)
 {
 	//Override this function if you need to respond to mouse clicks.

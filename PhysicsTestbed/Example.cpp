@@ -17,6 +17,8 @@
 #include "CorePackets.h" // Here so user's can do stuff with the ClientTimeout struct.
 
 
+
+// ------------ Struct to help with packet serialization ------------ //
 struct PlayerCreateStruct
 {
 	int firstByte = (int)CustomIdentifier::PLAYER_CREATE;
@@ -28,41 +30,92 @@ struct PlayerCreateStruct
 
 	char name[25];
 };
-
+// ------------------------------------------------------------------ //
 
 Example::Example() : Testbed()
 {
+	// ========================== Creation of peers ========================== //
+	// With DanNet you want to create a peer. A peer can be a server or client.
+	// Since we have left the peer constructor empty, it's going to make our peer a client. It will automatically assign an ephemeral port and will bind to the most
+	// appropriate ip address the kernel can find.
+
 	testPeer = new Peer();
 	testPeer->StartPeer();
 
-	//testPeer->SimulateLag(true, 500);
 
-	//char input[25];
-	//std::cin >> input;
+	// ========================== Lag simulation ========================== //
+	// 	DanNet supports very basic lag simulation. All lag simulation does it stall
+	// 	the time for your packets to send out. SimulateLag() takes in a double which
+	// 	is the milliseconds you want to lag your packets by.
+
+
+	//testPeer->SimulateLag(true, 250); // ---------------------------> Umcomment this code to stall the rate at which you send packets at by 250 milliseconds.
+
+	
+
+
+
+	// In this little demo, client's can have names which you can see on the server when a client connects.
 	strcpy_s(name, "testname");
 
-//	sendreliable()
+	// ----------------------- File reader so you can specify a server ipaddress to connect to with client.cfg ----------------------- //
+	std::ifstream clientConfig;
+	clientConfig.open("client.cfg");
+	if (!clientConfig.good())
+	{
+		std::cout << "Please create a client.cfg file and place it next to the executable." << std::endl;
+		this->Shutdown();
+	}
+	// If the file read worked, let's try to connect.
+	else
+	{
+		std::string fileIP;
+		std::getline(clientConfig, fileIP);
+		clientConfig.close();
+		// ------------------------------------------------------------------------------------------------------------------------------- //
 
-	std::ifstream serverConfig;
-	serverConfig.open("serverconfig.cfg");
-	std::string fileIP;
-	std::getline(serverConfig, fileIP);
-	serverConfig.close();
-	
-	//Your initialisation code goes here!
-	testPeer->Connect(fileIP.c_str(), 25565);
-	//m_allPlayers.push_back(Player(testPeer->GetId(), glm::vec3(0, 1, 0), true));
+
+		// After we've got the ipaddress and since we've hard coded the servers port to 25565, we can now connect.
+		testPeer->Connect(fileIP.c_str(), 25565);
+	}
 }
+
+
+
+
+// ------------------------ In this Update() function, there are examples of sending and receiving of packets. ------------------------ //
+
+// ========================== Receiving packets with DanNet ========================== //
+	// To receive packets with DanNet you create a Packet pointer and set it nullptr. In your
+	// game loop, you constantly set your packet pointer to Peer.UDPReceivePacket() which will
+	// return the next available packet for you to use.
+
+	// You can call GetPacketIndentifier() on packets to see what type of message they are.
+	// [IMPORTANT] Make sure to call FlushCurrentPacket() on your peer after dealing with a packet to remove it from the packet queue.
+
+
+
+// ========================== Sending packets with DanNet ========================== //
+	// To send packets with DanNet you first create a Packet. In the Packet constructor you
+	// specifiy whether you want a reliable or unreliable UDP packet.
+	// 
+	// After creating the packet, you serialize what data you want into the packet with 
+	// the .Serialize() function. Be careful with how you order what you serialize!
+	// 
+	// After serializing your data in a packet you can then send it with either Send(),
+	// SendTo() or SendToAll(). 
+
 
 void Example::Update()
 {
 	//This call ensures that your mouse position and aspect ratio are maintained as correct.
 	Testbed::Update();
 
-	// if we have successfully connected but we don't have a player, we will make a player. this is really dodgy and not how I would do it for a real game but I think it works fine for this little demo.
+
+	// If we have successfully connected but we don't have a player, we will make a player. this is really dodgy and not how I would do it for a real game but I think it works fine for this little demo.
 	if (testPeer->GetId() != -1 && m_myPlayer == nullptr)
 	{
-		m_myPlayer = new Player(testPeer->GetId(), name, glm::vec3(0, 1, 0), true); // =================================== WARNING ================================= this player is on the heap and we are not deleting it!
+		m_myPlayer = new Player(testPeer->GetId(), name, glm::vec3(0, 1, 0), true); // ============= WARNING ============= this player is on the heap and we are deleting when Example.cpp is destructed. //
 
 		Packet playerCreationPacket(PacketPriority::UNRELIABLE_UDP);
 		PlayerCreateStruct playerCreateS;
@@ -76,7 +129,7 @@ void Example::Update()
 	}
 
 
-	// packet checking update.
+	// Packet checking update.
 	Packet* incomingPacket = nullptr;
 	incomingPacket = testPeer->UDPReceivePacket();
 	if (incomingPacket != nullptr)
@@ -130,8 +183,11 @@ void Example::Update()
 			testPeer->FlushCurrentPacket();
 			break;
 		}
-		case MessageIdentifier::CLIENT_TIMEOUT:
-		{
+		case MessageIdentifier::CLIENT_TIMEOUT:											// ================================== NOTE ================================== /
+		{																				// MessageIdentifier::CLIENT_TIMEOUT is the only core message identifier that
+																						// user's of DanNet have to deal with. I designed it this way to help with
+																						// adding player disconnect functionality.
+				
 			// We've received a message from *probably* the server (unless someone is trying to use my library for peer to peer or something) that a client has timed out. We want to remove them from our
 			// player's vector so we don't render them anymore.
 			ClientTimeout clientTimeoutStruct;
@@ -167,6 +223,7 @@ void Example::Update()
 
 
 
+	// --------------- Updating player's positions ---------------
 
 	for (int i = 0; i < m_allPlayers.size(); i++)
 	{
@@ -176,15 +233,12 @@ void Example::Update()
 	{
 		m_myPlayer->Update(window, deltaTime, *testPeer);
 	}
-
-	//Your physics (or whatever) code goes here!
-
-	
-
 }
 
 void Example::Render()
 {
+	// --------------- Rendering player's ---------------
+
 	for (int i = 0; i < m_allPlayers.size(); i++)
 	{
 		m_allPlayers[i].Draw(lines);
@@ -194,39 +248,6 @@ void Example::Render()
 		m_myPlayer->Draw(lines);
 	}
 
-	//Example code that draws a blue square.
-	//std::vector<glm::vec2> points;
-	//points.push_back({ 1.5f, 1.5f });
-	//points.push_back({ 1.5f, 2.5f });
-	//points.push_back({ 2.5f, 2.5f });
-	//points.push_back({ 2.5f, 1.5f });
-	//
-	//lines.DrawRawShape((float*)points.data(), (unsigned int) points.size(), glm::vec3(0, 0, 1));
-
-
-	//Example code that draws a coloured circle at the mouse position, whose colour depends on which buttons are down.
-	if (leftButtonDown)
-	{
-		//lines.DrawCircle(cursorPos, 0.2f, { 1, 0, 0 });
-	}
-	else if (rightButtonDown)
-	{
-		//lines.DrawCircle(cursorPos, 0.2f, { 0, 1, 0 });
-	}
-	else
-	{
-		//lines.DrawCircle(cursorPos, 0.2f, { 0, 0, 1 });
-	}
-
-
-
-
-
-	//Your drawing code goes here!
-
-
-
-
-	//This call puts all the lines you've set up on screen - don't delete it or things won't work.
+	
 	Testbed::Render();
 }
