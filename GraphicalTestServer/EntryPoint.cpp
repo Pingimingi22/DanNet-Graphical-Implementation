@@ -74,7 +74,7 @@ int main()
 	
 
 
-	//testPeer.SimulateLag(true, 250); ------------------------------------------- Uncomment this to make your packets send out with a delay of 250 milliseconds (I guess it would be a ping of 500).
+	//testPeer.SimulateLag(true, 250); // ------------------------------------------- Uncomment this to make your packets send out with a delay of 250 milliseconds (I guess it would be a ping of 500).
 
 
 
