@@ -15,6 +15,8 @@ enum CustomIdentifier
 	PLAYER_MOVE,
 };
 
+// ------------------------------------- Creating structs to help easily serialize things into packets. ------------------------------------- //
+// These structs are used to serialize things into packets. A key thing with DanNet is that the order of things you serialize matter.
 struct PlayerCreateStruct
 {
 	int firstByte = (int)CustomIdentifier::PLAYER_CREATE;
@@ -48,37 +50,53 @@ struct Player
 	char name[25];
 
 };
+// ------------------------------------------------------------------------------------------------------------------------------------------ //
 
+
+// --- Super basic server that can store information about player's and their positions --- //
 int main()
 {
 	std::vector<Player> allPlayers;
+
+	// With DanNet you want to create a peer. A peer can be a server or client.
+	// Since we have passed in true for the isServer parameter and have specified a port, our peer is going to behave like a server.
 
 	Peer testPeer(true, 25565);
 	testPeer.StartPeer();
 
 	bool isRunning = true;
 
-	//testPeer.SimulateLag(true, 1000);
+
+	// ========================== Lag simulation ========================== //
+	// 	DanNet supports very basic lag simulation. All lag simulation does it stall
+	// 	the time for your packets to send out. SimulateLag() takes in a double which
+	// 	is the milliseconds you want to lag your packets by.
+	
 
 
-	// testing serialization.
-	Packet testPacket = Packet(PacketPriority::RELIABLE_UDP);
-	int testNum = 95;
-	testPacket.Serialize(testNum);
-
-	int thingWeDontCareAbout = 0;
-	GUID guidWeDontCareAbout;
-	int deserializeTestNum = 0;
-
-	testPacket.InternalHeaderDeserialize(thingWeDontCareAbout, guidWeDontCareAbout);
-	testPacket.Deserialize(deserializeTestNum);
-	//-----------------------------------
+	//testPeer.SimulateLag(true, 250); ------------------------------------------- Uncomment this to make your packets send out with a delay of 250 milliseconds (I guess it would be a ping of 500).
 
 
 
+	// ========================== Receiving packets with DanNet ========================== //
+	// To receive packets with DanNet you create a Packet pointer and set it nullptr. In your
+	// game loop, you constantly set your packet pointer to Peer.UDPReceivePacket() which will
+	// return the next available packet for you to use.
+
+	// You can call GetPacketIndentifier() on packets to see what type of message they are.
+	// [IMPORTANT] Make sure to call FlushCurrentPacket() on your peer after dealing with a packet to remove it from the packet queue.
 
 
 
+	// ========================== Sending packets with DanNet ========================== //
+	// To send packets with DanNet you first create a Packet. In the Packet constructor you
+	// specifiy whether you want a reliable or unreliable UDP packet.
+	// 
+	// After creating the packet, you serialize what data you want into the packet with 
+	// the .Serialize() function. Be careful with how you order what you serialize!
+	// 
+	// After serializing your data in a packet you can then send it with either Send(),
+	// SendTo() or SendToAll(). 
 
 	Packet* incomingPacket = nullptr;
 	while (isRunning)
@@ -86,9 +104,6 @@ int main()
 		incomingPacket = testPeer.UDPReceivePacket();
 		if (incomingPacket != nullptr)
 		{
-			//std::cout << "Packet identifier: " << (int)incomingPacket->GetPacketIdentifier() << std::endl;
-			//std::cout << "Hello world." << std::endl;
-			//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			MessageIdentifier testIdentifier = incomingPacket->GetPacketIdentifier();
 			switch (incomingPacket->GetPacketIdentifier())
 			{
@@ -100,16 +115,13 @@ int main()
 				Packet playerCreatePacket(PacketPriority::RELIABLE_UDP);
 				playerCreatePacket.Serialize(playerCreateS.firstByte, playerCreateS.m_xPos, playerCreateS.m_yPos, playerCreateS.m_id, playerCreateS.name);
 
-				//PlayerCreateStruct testdelete;
-				//playerCreatePacket.Deserialize(testdelete.firstByte, testdelete.m_xPos, testdelete.m_yPos, testdelete.m_id, testdelete.name);
 
 				std::cout << std::endl;
 				std::cout << "UDPSendToAll() Called. Sending information about new player to all old players." << std::endl;
 				testPeer.UDPSendToAll(playerCreatePacket);
 
 
-				// telling the newly created player about all the other player's who joined before him.
-
+				// Telling the newly created player about all the other player's who joined before him.
 				Client* client;
 				client = testPeer.GetClient(playerCreateS.m_id);
 
@@ -145,12 +157,6 @@ int main()
 				PlayerMoveStruct playerMoveS;
 				incomingPacket->Deserialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 
-				if (playerMoveS.m_xPos == 0)
-				{
-					//assert(playerMoveS.m_xPos != 0);
-					std::cout << "test" << std::endl;
-				}
-
 				for (int i = 0; i < allPlayers.size(); i++)
 				{
 					if (allPlayers[i].m_id == playerMoveS.m_id) // finding that specific player and updating their position.
@@ -180,8 +186,6 @@ int main()
 			}
 		}
 		
-
-
 	}
 	
 
