@@ -110,7 +110,7 @@ int main()
 
 				// telling the newly created player about all the other player's who joined before him.
 
-				ClientStruct client;
+				Client* client;
 				client = testPeer.GetClient(playerCreateS.m_id);
 
 				std::cout << "Sending information about all older players to the new player." << std::endl;
@@ -124,7 +124,7 @@ int main()
 					Packet testPacket(PacketPriority::RELIABLE_UDP);
 					testPacket.Serialize(anotherPlayerCreateS.firstByte, anotherPlayerCreateS.m_xPos, anotherPlayerCreateS.m_yPos, anotherPlayerCreateS.m_id, anotherPlayerCreateS.name);
 					std::cout << "UDPSendTo() called." << std::endl;
-					testPeer.UDPSendTo(testPacket, client.m_ipAddress, client.m_port);
+					testPeer.UDPSendTo(testPacket, client->m_ipAddress, client->m_port);
 					std::cout << std::endl;
 					std::cout << "===== [NEW CLIENT] ===== Sent the new client information about player " << allPlayers[i].m_id << ". " << std::endl;
 					std::cout << std::endl;
@@ -169,6 +169,19 @@ int main()
 			}
 			}
 		}
+
+		// Going through all the players and making sure our peer has a client with a matching ID. If it doesn't, this means one of the client's has disconnected so we should remove their player.
+		bool foundIDMatch = false;
+		for (int i = 0; i < allPlayers.size(); i++)
+		{
+			if (testPeer.GetClient(allPlayers[i].m_id) == nullptr)
+			{
+				allPlayers.erase(allPlayers.begin() + i);
+			}
+		}
+		
+
+
 	}
 	
 

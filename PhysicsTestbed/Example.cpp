@@ -14,6 +14,9 @@
 
 //#include "PacketPriorities.h"
 
+#include "CorePackets.h" // Here so user's can do stuff with the ClientTimeout struct.
+
+
 struct PlayerCreateStruct
 {
 	int firstByte = (int)CustomIdentifier::PLAYER_CREATE;
@@ -127,6 +130,33 @@ void Example::Update()
 			testPeer->FlushCurrentPacket();
 			break;
 		}
+		case MessageIdentifier::CLIENT_TIMEOUT:
+		{
+			// We've received a message from *probably* the server (unless someone is trying to use my library for peer to peer or something) that a client has timed out. We want to remove them from our
+			// player's vector so we don't render them anymore.
+			ClientTimeout clientTimeoutStruct;
+			incomingPacket->Deserialize(clientTimeoutStruct.MessageIdentifier, clientTimeoutStruct.clientID);
+
+			bool hasFoundPlayer = false;
+			for (int i = 0; i < m_allPlayers.size(); i++)
+			{
+				if (m_allPlayers[i].m_id == clientTimeoutStruct.clientID)
+				{
+					// We've found the player to remove!
+					m_allPlayers.erase(m_allPlayers.begin() + i);
+					std::cout << "Removed timed out client from our player's vector." << std::endl;
+					hasFoundPlayer = true;
+					break;
+				}
+			}
+			if (!hasFoundPlayer) // If we didn't find the player, that means we received a timeout message to remove a client we don't have. This is pretty bad but it could mean we already have removed
+			{					 // the client.
+				std::cout << "Received a timeout message for a client but we don't have that client listed as a player!" << std::endl;
+				assert(false);
+			}
+			testPeer->FlushCurrentPacket();
+			break;
+		}
 		default:
 			std::cout << "Received weird message" << std::endl;
 			testPeer->FlushCurrentPacket();
@@ -148,6 +178,7 @@ void Example::Update()
 
 	//Your physics (or whatever) code goes here!
 
+	
 
 }
 
