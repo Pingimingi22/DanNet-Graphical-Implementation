@@ -2,9 +2,7 @@
 #include <assert.h>
 #include <chrono>
 
-
 #include "DanNet.h"
-
 
 // ========================== Custom user MessageIdentifiers ========================== //
 // Inspired by RakNet, a big part of DanNet is the way in which users make their own packet

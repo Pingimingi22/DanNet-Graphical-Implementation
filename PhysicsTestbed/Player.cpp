@@ -1,10 +1,7 @@
 #include "Testbed.h"
-
 #include "Player.h"
-#include "Packet.h"
-#include "Peer.h"
 
-
+#include "DanNet.h"
 
 Player::Player(int id, char* name, glm::vec3 colour, bool isPlayer)
 {

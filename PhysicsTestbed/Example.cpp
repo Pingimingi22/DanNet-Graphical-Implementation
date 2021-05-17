@@ -3,11 +3,6 @@
 
 #include "CustomIdentifiers.h"
 
-//#include "MessageIdentifiers.h"
-//#include "Packet.h"
-//#include "CorePackets.h" // Here so user's can do stuff with the ClientTimeout struct.
-
-
 
 // ------------ Struct to help with packet serialization ------------ //
 struct PlayerCreateStruct
