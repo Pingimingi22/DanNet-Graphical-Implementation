@@ -1,15 +1,15 @@
 #pragma once
 #include "Testbed.h"
 
-
+#include <iostream>
 #include <vector>
-
 #include "Maths.h"
 
-
 #include "Player.h"
-#include "Peer.h"
-#include <iostream>
+
+
+#include "DanNet.h"
+//#include "Peer.h"
 
 
 class Example : public Testbed

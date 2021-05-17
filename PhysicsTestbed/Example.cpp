@@ -1,20 +1,11 @@
 #include "Example.h"
-
-#include <vector>
-
-//#include "Player.h"
-
-//#include "Peer.h"
-#include "MessageIdentifiers.h"
-#include "Packet.h"
-// testing player
-#include "CustomIdentifiers.h"
-#include <iostream>
 #include <fstream>
 
-//#include "PacketPriorities.h"
+#include "CustomIdentifiers.h"
 
-#include "CorePackets.h" // Here so user's can do stuff with the ClientTimeout struct.
+//#include "MessageIdentifiers.h"
+//#include "Packet.h"
+//#include "CorePackets.h" // Here so user's can do stuff with the ClientTimeout struct.
 
 
 
@@ -72,12 +63,11 @@ Example::Example() : Testbed()
 		std::string fileIP;
 		std::getline(clientConfig, fileIP);
 		clientConfig.close();
-		// ------------------------------------------------------------------------------------------------------------------------------- //
-
-
+		
 		// After we've got the ipaddress and since we've hard coded the servers port to 25565, we can now connect.
 		testPeer->Connect(fileIP.c_str(), 25565);
 	}
+	// ------------------------------------------------------------------------------------------------------------------------------- //
 }
 
 
@@ -127,6 +117,8 @@ void Example::Update()
 
 		std::cout << "our player created: " << playerCreateS.m_id << " name: " << name << std::endl;
 	}
+
+
 
 
 	// Packet checking update.
@@ -215,7 +207,7 @@ void Example::Update()
 			break;
 		}
 		default:
-			std::cout << "Received weird message" << std::endl;
+			std::cout << "Received weird message with an unknown packet identifier." << std::endl;
 			testPeer->FlushCurrentPacket();
 			break;
 		}

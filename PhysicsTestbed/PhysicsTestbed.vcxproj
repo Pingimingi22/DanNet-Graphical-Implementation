@@ -166,7 +166,6 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Testbed.h" />
-    <ClInclude Include="teststructheaderdelete.h" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
