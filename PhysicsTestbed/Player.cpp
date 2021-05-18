@@ -46,7 +46,7 @@ void Player::Move(GLFWwindow* window, float deltaTime, Peer& peer)
 			Packet packet(PacketPriority::UNRELIABLE_UDP);
 			packet.Serialize(playerMoveS.firstByte, playerMoveS.m_xPos, playerMoveS.m_yPos, playerMoveS.m_id);
 			peer.UDPSend(packet);
-	
+
 		}
 		if (glfwGetKey(window, GLFW_KEY_D))
 		{
