@@ -9,7 +9,6 @@
 
 
 #include "DanNet.h"
-//#include "Peer.h"
 
 
 class Example : public Testbed

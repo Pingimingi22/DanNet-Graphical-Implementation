@@ -40,7 +40,6 @@ Example::Example() : Testbed()
 	
 
 
-
 	// In this little demo, client's can have names which you can see on the server when a client connects.
 	strcpy_s(name, "testname");
 
@@ -100,7 +99,7 @@ void Example::Update()
 	// If we have successfully connected but we don't have a player, we will make a player. this is really dodgy and not how I would do it for a real game but I think it works fine for this little demo.
 	if (testPeer->GetId() != -1 && m_myPlayer == nullptr)
 	{
-		m_myPlayer = new Player(testPeer->GetId(), name, glm::vec3(0, 1, 0), true); // ============= WARNING ============= this player is on the heap and we are deleting when Example.cpp is destructed. //
+		m_myPlayer = new Player(testPeer->GetId(), name, glm::vec3(0, 1, 0), true); // ============= NOTE ============= this player is on the heap and we are deleting when Example.cpp is destructed. //
 
 		Packet playerCreationPacket(PacketPriority::UNRELIABLE_UDP);
 		PlayerCreateStruct playerCreateS;
@@ -176,7 +175,7 @@ void Example::Update()
 																						// adding player disconnect functionality.
 				
 			// We've received a message from *probably* the server (unless someone is trying to use my library for peer to peer or something) that a client has timed out. We want to remove them from our
-			// player's vector so we don't render them anymore.
+			// player's std::vector so we don't render them anymore.
 			ClientTimeout clientTimeoutStruct;
 			incomingPacket->Deserialize(clientTimeoutStruct.MessageIdentifier, clientTimeoutStruct.clientID);
 
