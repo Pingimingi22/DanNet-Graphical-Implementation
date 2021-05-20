@@ -12,5 +12,6 @@ int main()
 		program.Update();
 		program.Render();
 	}
+
 	return 0;
 }
