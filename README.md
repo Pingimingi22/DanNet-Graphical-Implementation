@@ -1,5 +1,6 @@
 # DanNet-Graphical-Implementation
 An example implementation project to show off my networking library, DanNet.
+DanNet can be found at: https://github.com/Pingimingi22/DanNet
 
 
 # Implementation of DanNet
