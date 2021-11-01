@@ -405,3 +405,6 @@ FodyWeavers.xsd
 *.tlog
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,c++
+
+# Include the .user files so that the working directory is maintained over Git.
+!*.user
