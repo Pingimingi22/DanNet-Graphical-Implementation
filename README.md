@@ -4,6 +4,11 @@ An example implementation project to show off my networking library, DanNet.
 
 # Implementation of DanNet
 
+## Important Note
+The client is a graphical application and needs a path to the shader files found in the Working directory.
+It also needs the path to the .cfg file to know what ip to connect to.
+The default project properties have set the working directory accordingly, but if you attempt to build the program yourself make sure you either place the client exe in a folder next to those files or set the working directory to their location.
+
 ## Instructions
 - To use my example implementation of DanNet:
 
